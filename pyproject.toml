@@ -34,13 +34,13 @@ dependencies = [
     # viva-cpm        = Cellular Potts (Rust core); vivarium-tyssue = vertex wrapper;
     # viva-munk       = center-based pymunk physics (pymunk is its binary dep);
     # viva-grammar    = Macklin/PhysiCell hypothesis-grammar rule engine;
-    # viva-tellurium  = the RoadRunner ODE bridge (on PyPI).
+    # viva-tellurium  = the RoadRunner ODE bridge (git tag 0.2.4 — load_roadrunner not yet on PyPI).
     "viva-cpm",
     "vivarium-tyssue",
     "viva-munk",
     "pymunk",
     "viva-grammar",
-    "viva-tellurium>=0.2.3",
+    "viva-tellurium>=0.2.4",
 ]
 
 [project.optional-dependencies]
@@ -97,6 +97,7 @@ override-dependencies = [
 ]
 
 [tool.uv.sources]
+viva-tellurium = { git = "https://github.com/vivarium-collective/viva-tellurium.git", tag = "0.2.4" }  # 0.2.4 (load_roadrunner) is not on PyPI yet
 # Mechanics / grammar engine wrappers are git-only (not on PyPI).
 viva-cpm = { git = "https://github.com/vivarium-collective/viva-cpm.git", branch = "main" }
 viva-munk = { git = "https://github.com/vivarium-collective/viva-munk.git", branch = "main" }
