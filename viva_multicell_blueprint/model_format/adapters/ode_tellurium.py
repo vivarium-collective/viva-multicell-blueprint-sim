@@ -7,12 +7,13 @@ from typing import Any
 from ..registry import ModelSpec
 from .base import IntracellularAdapter
 
-try:  # tellurium is an optional engine
-    import tellurium as te
+try:  # tellurium is an optional engine; reuse the shared viva-tellurium loader
+    import tellurium  # noqa: F401 - the real engine; availability gate
+    from viva_tellurium import load_roadrunner
 
     _AVAILABLE = True
 except Exception:  # pragma: no cover - depends on environment
-    te = None
+    load_roadrunner = None
     _AVAILABLE = False
 
 
@@ -44,9 +45,9 @@ class ODEAdapter(IntracellularAdapter):
             return
         src = model_spec.source
         if isinstance(src, dict):
-            self._rr = te.loada(_antimony(src))
+            self._rr = load_roadrunner(_antimony(src), model_format="antimony")
         else:  # SBML string or path
-            self._rr = te.loadSBMLModel(src)
+            self._rr = load_roadrunner(src, model_format="sbml")
         for name, val in initial_levels.items():
             if name in self._rr.getFloatingSpeciesIds():
                 self._rr[name] = float(val)
