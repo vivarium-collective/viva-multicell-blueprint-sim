@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v5
+      - name: Install (core + dev; smoldyn stays in the optional [particles] extra)
+        run: uv pip install --system -e ".[dev]"
+      - name: Test
+        # tellurium/roadrunner dlopen libpython — expose it so the import succeeds
+        run: |
+          export LD_LIBRARY_PATH="$(python -c 'import sysconfig;print(sysconfig.get_config_var("LIBDIR"))'):$LD_LIBRARY_PATH"
+          pytest tests/ -q
