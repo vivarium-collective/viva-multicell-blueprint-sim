@@ -386,9 +386,11 @@ def build_mechanism_state(blueprint) -> dict:
 import re as _re
 from pathlib import Path as _Path
 
+from viva_multicell_blueprint._workspace import workspace_root as _workspace_root
+
 # Where the per-run spatial videos are written: workspace/reports/assets/_studio_runs/
 # is served by the workbench at /assets/_studio_runs/, so the Studio UI can open them.
-_STUDIO_RUNS = _Path(__file__).resolve().parents[2] / "workspace" / "reports" / "assets" / "_studio_runs"
+_STUDIO_RUNS = _workspace_root() / "workspace" / "reports" / "assets" / "_studio_runs"
 
 
 def _safe_name(name: str) -> str:

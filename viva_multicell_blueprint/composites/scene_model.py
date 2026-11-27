@@ -10,13 +10,14 @@ from pathlib import Path
 
 from process_bigraph.composite_generator import composite_generator
 
+from .._workspace import workspace_root
 from ..core import register_workspace_processes
 from ..model_format.compile import SceneModelProcess  # noqa: F401 (registers it)
 from ..model_format.compile import compile_scene
 from ..model_format.registry import ModelSpec, Registry, Transport
 from ..model_format.scene import Scene
 
-_SCENE = Path(__file__).resolve().parents[2] / "workspace" / "scenes" / "mixed_formalism_demo.yaml"
+_SCENE = workspace_root() / "workspace" / "scenes" / "mixed_formalism_demo.yaml"
 
 _NET = {
     "species": {"A": 4.0, "B": 4.0, "C": 0.0},

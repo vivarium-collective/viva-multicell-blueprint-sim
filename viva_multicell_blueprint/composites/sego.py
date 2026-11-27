@@ -26,11 +26,12 @@ from pathlib import Path
 from process_bigraph.composite_generator import composite_generator
 
 from ..blueprint.model import Blueprint
+from .._workspace import workspace_root
 from ..core import register_workspace_processes
 
-# __file__ is <pkg>/composites/sego.py, so the repo root (which holds
-# workspace/blueprints/) is three parents up.
-_BLUEPRINTS = Path(__file__).resolve().parent.parent.parent / "workspace" / "blueprints"
+# The investigation workspace (which holds workspace/blueprints/) is resolved at
+# runtime from the working directory — the package is now installed externally.
+_BLUEPRINTS = workspace_root() / "workspace" / "blueprints"
 _SEGO = _BLUEPRINTS / "influenza_sego2022.yaml"
 # Biology-preserving ~2.4x scale-up of _SEGO (120x120 patch, 15x15 ~225-cell block).
 # Same mechanism, bigger tissue -- see the blueprint header for the scale-up contract.

@@ -10,12 +10,13 @@ from pathlib import Path
 
 from process_bigraph.composite_generator import composite_generator
 
+from .._workspace import workspace_root
 from ..core import register_workspace_processes
 from ..mechanism.divergence_compare import (
     DivergenceCompareProcess,  # noqa: F401 (registers it)
 )
 
-_PATCH = Path(__file__).resolve().parents[2] / "workspace" / "blueprints" / "tri_coupled_patch.yaml"
+_PATCH = workspace_root() / "workspace" / "blueprints" / "tri_coupled_patch.yaml"
 
 
 @composite_generator(
