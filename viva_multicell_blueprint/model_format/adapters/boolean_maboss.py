@@ -13,11 +13,12 @@ from ..registry import ModelSpec
 from .base import IntracellularAdapter
 
 try:  # guarded: a missing engine must not break import or construction
-    import cmaboss as _cmaboss
+    import cmaboss  # noqa: F401 - presence gate; viva_maboss.engine_for picks the right-sized build
+    from viva_maboss import engine_for
 
     _AVAILABLE = True
 except Exception:  # pragma: no cover - depends on environment
-    _cmaboss = None
+    engine_for = None
     _AVAILABLE = False
 
 _SAMPLES = 400
@@ -81,7 +82,8 @@ class BooleanAdapter(IntracellularAdapter):
             cfg += f"{n}.is_internal=0;\n"
             cfg += f"[{n}].istate = {p} [1], {1.0 - p} [0];\n"
         self._seed += 1
-        res = _cmaboss.MaBoSSSim(network_str=bnd, config_str=cfg).run(True)
+        engine = engine_for(len(self._net))  # smallest cmaboss build that fits (64..1024)
+        res = engine.MaBoSSSim(network_str=bnd, config_str=cfg).run(True)
         probs, _, names = res.get_last_nodes_probtraj()
         self._levels = {n: float(probs[0][i]) for i, n in enumerate(names)}
         self._levels.update(pins)
