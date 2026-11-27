@@ -8,10 +8,12 @@ from pathlib import Path
 
 import numpy as np
 
+from .._workspace import workspace_root
+
 _COLORS = {"ODEAdapter": ("#1f77b4", "ODE (SBML/Tellurium)"),
            "ParticleAdapter": ("#d62728", "Particle (Smoldyn)"),
            "BooleanAdapter": ("#2ca02c", "Boolean (MaBoSS)")}
-STUDY_VIZ = (Path(__file__).resolve().parents[2] / "workspace" / "studies"
+STUDY_VIZ = (workspace_root() / "workspace" / "studies"
              / "scene-model-mixed-formalism" / "viz" / "scene-model-flipbook.html")
 MAX_BYTES = 2_500_000
 

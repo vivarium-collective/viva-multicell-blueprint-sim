@@ -1,0 +1,112 @@
+[project]
+name = "viva-multicell-blueprint-sim"
+version = "0.1.0"
+description = "Backend-neutral multicellular blueprint simulator (CPM / vertex / center-based / particle / subcellular ODE + Boolean), split out of the viva-multicell-blueprint investigation workspace."
+requires-python = ">=3.12"
+readme = "README.md"
+license = { file = "LICENSE" }
+dependencies = [
+    # process-bigraph substrate. Floor 1.8.5 ships the composite type-registration
+    # + emitter fixes the composites rely on (same floor the investigation uses).
+    "process-bigraph>=1.8.5",
+    # Numerics / data / plotting the package imports directly.
+    "numpy",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "plotly",
+    "pillow",
+    "scikit-image",
+    # Serialization / validation / CLI.
+    "pyyaml>=6.0",
+    "jsonschema[format-nongpl]>=4.21",
+    "rich",
+    "typer",
+    # Simulation engines the package wraps / drives directly.
+    # tellurium = libroadrunner SBML/Antimony ODE (subcellular tellurium module);
+    # tyssue    = vertex/tissue-mechanics mesh (vertex backend, pandas-3 fork below);
+    # cmaboss   = in-process MaBoSS Boolean-network engine (Boolean adapter). It is
+    #             a pyMaBoSS pre-release on PyPI, so the specifier names it explicitly.
+    "tellurium",
+    "tyssue",
+    "cmaboss>=1.0.0b34",
+    # viva engine wrappers (mechanics backends + subcellular ODE + rule grammar).
+    # viva-cpm        = Cellular Potts (Rust core); vivarium-tyssue = vertex wrapper;
+    # viva-munk       = center-based pymunk physics (pymunk is its binary dep);
+    # viva-grammar    = Macklin/PhysiCell hypothesis-grammar rule engine;
+    # viva-tellurium  = the RoadRunner ODE bridge (on PyPI).
+    "viva-cpm",
+    "vivarium-tyssue",
+    "viva-munk",
+    "pymunk",
+    "viva-grammar",
+    "viva-tellurium>=0.2.3",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+# Smoldyn particle engine (the bounded-particles composite + the particle
+# subcellular layer). An EXTRA, not a core dep: Smoldyn's `py3-none-any` wheels
+# mis-bundle a single version-specific `.so`, so plain `smoldyn` on macOS arm64
+# py3.12 resolves to a build carrying a cp314 binary that will not import. Pin a
+# dev build that ships a cp312 macOS binary there; Linux keeps the manylinux wheel.
+particles = [
+    "smoldyn==2.77.dev202610282210; sys_platform=='darwin'",
+    "smoldyn; sys_platform!='darwin'",
+]
+# Investigation/workspace framework. NOT needed to import or run the simulator —
+# `import viva_multicell_blueprint` pulls ZERO framework. These back the workbench
+# dashboard, the superpowers composite tooling, and the discovery-engine evaluator
+# plugins when the simulator is driven FROM the investigation workspace.
+workspace = [
+    "vivarium-workbench",
+    "viva-superpowers",
+    "viva-discovery-engine",
+]
+
+[project.scripts]
+multicell-blueprint = "viva_multicell_blueprint.cli.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Allow ecosystem git-direct-reference deps (viva-cpm / viva-munk / … @ git+https://…).
+[tool.hatch.metadata]
+allow-direct-references = true
+
+# Ship exactly the one package. hatchling bundles package data (the blueprint
+# JSON schema, any data files) by default — do NOT force-include data dirs, which
+# would double-add and break the wheel.
+[tool.hatch.build.targets.wheel]
+packages = ["viva_multicell_blueprint"]
+
+[tool.uv]
+# Mirror the investigation workspace's resolution fixes so the optional
+# `[workspace]` extra resolves the same way the dashboard does.
+override-dependencies = [
+    "vivarium-workbench @ git+https://github.com/vivarium-collective/vivarium-workbench.git@main",
+    "viva-superpowers @ git+https://github.com/vivarium-collective/viva-superpowers.git@main",
+    # viva-munk@main still pins the pre-rename `pbg-superpowers` dist in its
+    # metadata; pin the last release so resolution is deterministic (its module
+    # is provided by viva-superpowers at runtime).
+    "pbg-superpowers==0.23.0",
+    # Carry the extras the workbench requests so the xarray emitter's runtime deps
+    # resolve; a bare override would silently drop them.
+    "viva-emitters[sqlite,xarray,parquet] @ git+https://github.com/vivarium-collective/viva-emitters.git@main",
+]
+
+[tool.uv.sources]
+# Mechanics / grammar engine wrappers are git-only (not on PyPI).
+viva-cpm = { git = "https://github.com/vivarium-collective/viva-cpm.git", branch = "main" }
+viva-munk = { git = "https://github.com/vivarium-collective/viva-munk.git", branch = "main" }
+vivarium-tyssue = { git = "https://github.com/vivarium-collective/vivarium-tyssue.git", branch = "master" }
+viva-grammar = { git = "https://github.com/vivarium-collective/viva-grammar.git", branch = "main" }
+# vivarium-tyssue depends on the pandas-3 tyssue fork; uv only honors top-level
+# [tool.uv.sources], so the fork pin must live here or stock PyPI tyssue 1.1.0
+# (which lacks ActiveMigration) would be resolved.
+tyssue = { git = "https://github.com/vivarium-collective/vivatyssue.git" }
+# Framework sources for the optional [workspace] extra (unify every reference to
+# one URL/branch so uv does not see conflicting direct URLs).
+vivarium-workbench = { git = "https://github.com/vivarium-collective/vivarium-workbench.git", branch = "main" }
+viva-superpowers = { git = "https://github.com/vivarium-collective/viva-superpowers.git", branch = "main" }

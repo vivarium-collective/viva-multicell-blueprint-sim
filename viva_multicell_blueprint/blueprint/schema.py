@@ -9,7 +9,15 @@ from jsonschema import Draft202012Validator
 
 from .canonical import canonical_violations
 
-SCHEMA_PATH = Path(__file__).resolve().parents[2] / ".pbg" / "schemas" / "multicell_blueprint.schema.json"
+# The blueprint JSON-schema ships WITH the package (it defines the package's own
+# blueprint format). It used to be read from the workspace's `.pbg/schemas/` dir,
+# but post simulator/workspace split the package is installed externally, so it
+# carries its own copy under `blueprint/schemas/` (bundled into the wheel). A
+# workspace `.pbg/schemas/` copy, when present, is preferred so an investigation
+# can override the schema without re-releasing the simulator.
+_PKG_SCHEMA = Path(__file__).resolve().parent / "schemas" / "multicell_blueprint.schema.json"
+_WS_SCHEMA = Path.cwd() / ".pbg" / "schemas" / "multicell_blueprint.schema.json"
+SCHEMA_PATH = _WS_SCHEMA if _WS_SCHEMA.is_file() else _PKG_SCHEMA
 
 
 @lru_cache(maxsize=1)

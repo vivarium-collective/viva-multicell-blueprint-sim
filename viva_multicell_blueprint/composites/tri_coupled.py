@@ -17,12 +17,13 @@ from process_bigraph.composite_generator import composite_generator
 
 from pathlib import Path
 
+from .._workspace import workspace_root
 from ..core import register_workspace_processes
 from ..mechanism.tri_coupled import TriCoupledProcess  # noqa: F401 (registers the Process)
 
 # A small two-type patch kept tight so the consensus coupling converges + reads
 # clearly; override `blueprint` to run the composite on any other blueprint.
-_PATCH = Path(__file__).resolve().parents[2] / "workspace" / "blueprints" / "tri_coupled_patch.yaml"
+_PATCH = workspace_root() / "workspace" / "blueprints" / "tri_coupled_patch.yaml"
 
 
 @composite_generator(
